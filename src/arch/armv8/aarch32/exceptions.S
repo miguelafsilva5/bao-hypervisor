@@ -50,6 +50,12 @@
     push {r0-r12}
     SAVE_ELR_SPSR
 
+    mrc p15, 4, r0, c13, c0, 2  // Read HTPIDR (CPU base address)
+    mov r1, #CPU_VCPU_OFF
+    ldr r0, [r0, r1]
+    add r0, r0, #CPU_AS_ARCH_MASK_OFF
+    mcr p15, 4, r0, c6, c1, 1 //HPRENR
+    
 .endm
 
 
@@ -134,6 +140,22 @@
 .macro VM_ENTRY
 
     mrc p15, 4, r0, c13, c0, 2  // Read HTPIDR (CPU base address)
+
+#ifdef MEM_PROT_MPU   //0x2043a780
+    ldr r1, [r0, #CPU_VCPU_OFF]
+    mov r2, #VCPU_VM_OFF
+    add r1, r1, r2
+    ldr r1, [r1]
+    ldr r1, [r1, #VM_AS_ARCH_MASK_OFF]
+
+    mov r2, #CPU_ARCH_PROFILE_MPU_LOCKED_OFF
+    add r2, r2, r0
+    ldr r2, [r2]
+
+    orr r1, r1, r2
+    mcr p15, 4, r1, c6, c1, 1 //HPRENR
+#endif
+
     ldr r0, [r0, #CPU_VCPU_OFF]
     add r0, r0, #VCPU_REGS_OFF
     mov sp, r0
@@ -143,6 +165,7 @@
     LOAD_SP
     pop {r14}
     
+
     eret
     b   .
 
