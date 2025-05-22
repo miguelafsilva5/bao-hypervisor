@@ -441,7 +441,8 @@ void mem_vmpu_coalesce_contiguous(struct addr_space* as, bool broadcast, bool lo
             prev_reg = mem_vmpu_get_entry(as, prev->mpid);
 
             bool contiguous = prev_reg->region.base + prev_reg->region.size == cur_reg->region.base;
-            bool perms_compatible = mpu_perms_compatible(prev_reg->region.mem_flags.raw, cur_reg->region.mem_flags.raw);
+            bool perms_compatible =
+                mpu_perms_compatible(prev_reg->region.mem_flags.raw, cur_reg->region.mem_flags.raw);
             bool lock_compatible = prev_reg->lock == cur_reg->lock;
             if (contiguous && perms_compatible && lock_compatible) {
                 cur_mpid = cur->mpid;
@@ -553,16 +554,18 @@ bool mem_unmap_range(struct addr_space* as, vaddr_t vaddr, size_t size, bool bro
             top.base = limit;
             top.size = top_size;
             mpid_t top_mpid = mem_vmpu_allocate_entry(as);
-            if (!mem_vmpu_insert_region(as, top_mpid, &top, broadcast, locked))
+            if (!mem_vmpu_insert_region(as, top_mpid, &top, broadcast, locked)) {
                 return false;
+            }
         }
 
         if (bottom_size > 0) {
             struct mp_region bottom = reg;
             bottom.size = bottom_size;
             mpid_t bottom_mpid = mem_vmpu_allocate_entry(as);
-            if (!mem_vmpu_insert_region(as, bottom_mpid, &bottom, broadcast, locked))
+            if (!mem_vmpu_insert_region(as, bottom_mpid, &bottom, broadcast, locked)) {
                 return false;
+            }
         }
 
         size_t overlap_size = reg.size - top_size - bottom_size;
