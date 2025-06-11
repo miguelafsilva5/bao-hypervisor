@@ -50,12 +50,14 @@
     push {r0-r12}
     SAVE_ELR_SPSR
 
+#ifndef MEM_PROT_MMU
     mrc p15, 4, r0, c13, c0, 2  // Read HTPIDR (CPU base address)
     mov r1, #CPU_VCPU_OFF
     ldr r0, [r0, r1]
     add r0, r0, #CPU_AS_ARCH_MASK_OFF
     mcr p15, 4, r0, c6, c1, 1 //HPRENR
-    
+#endif
+
 .endm
 
 
@@ -141,7 +143,7 @@
 
     mrc p15, 4, r0, c13, c0, 2  // Read HTPIDR (CPU base address)
 
-#ifdef MEM_PROT_MPU   //0x2043a780
+#ifndef MEM_PROT_MMU
     ldr r1, [r0, #CPU_VCPU_OFF]
     mov r2, #VCPU_VM_OFF
     add r1, r1, r2
