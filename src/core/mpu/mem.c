@@ -443,7 +443,7 @@ void mem_vmpu_coalesce_contiguous(struct addr_space* as, bool broadcast, bool lo
             bool contiguous = prev_reg->region.base + prev_reg->region.size == cur_reg->region.base;
             bool perms_compatible =
                 mpu_perms_compatible(prev_reg->region.mem_flags.raw, cur_reg->region.mem_flags.raw);
-            bool lock_compatible = prev_reg->lock == cur_reg->lock;
+            bool lock_compatible = ((prev_reg->lock == cur_reg->lock) && !(prev_reg->lock));
             if (contiguous && perms_compatible && lock_compatible) {
                 cur_mpid = cur->mpid;
                 prev_mpid = prev->mpid;

@@ -202,8 +202,14 @@ bool mpu_update(struct addr_space* as, struct mp_region* mpr)
     UNUSED_ARG(as);
     mpu_temp_update();
     for (mpid_t i = 0; i < MPU_ARCH_MAX_NUM_ENTRIES; i++) {
+        unsigned long prbar = 0;
+        unsigned long base = 0;
         if (cpu()->arch.profile.mpu.bitmap & BIT(i)) {
-            if ((sysreg_prbar_el2_read() & PRBAR_BASE_MSK) ==
+            sysreg_prselr_el2_write(i);
+            ISB();
+            prbar = sysreg_prbar_el2_read();
+            base = PRBAR_BASE(prbar);
+            if (base ==
                 mpr->base /*&& !bitmap_get(cpu()->arch.profile.mpu.locked,i)*/) {
                 // should we check if the new addresses overlap any region?
                 mpu_entry_update(i, mpr);
@@ -224,7 +230,10 @@ bool mpu_perms_compatible(unsigned long perms1, unsigned long perms2)
     return true;
 }
 
-void mpu_enable(void) { }
+void mpu_enable(void)
+{
+    sysreg_sctlr_el2_write(SCTLR_M);
+}
 
 void mpu_init()
 {

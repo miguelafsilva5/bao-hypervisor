@@ -23,6 +23,10 @@
  */
 _barrier: .4byte 0
 
+.balign 4
+.global img_addr
+img_addr: .4byte BAO_VAS_BASE
+
 /**
  *  The following code MUST be at the base of the image, as this is bao's entry point. Therefore
  * .boot section must also be the first in the linker script. DO NOT implement any code before the

@@ -1,0 +1,14 @@
+add-symbol-file bin/mps3-an536/baremetal/bao.elf
+target remote :1234
+set output-radix 16
+t 1
+set $pc = 0x20000000
+t 2
+set $pc = 0x20000000
+t 1 
+dash
+break pp_root_init
+break hyp_data_abt_handler
+break vm_install_image
+
+dash

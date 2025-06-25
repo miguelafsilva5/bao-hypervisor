@@ -6,6 +6,6 @@
 #ifndef __PLAT_PLATFORM_H__
 #define __PLAT_PLATFORM_H__
 
-#include <drivers/pl011_uart.h>
+#include <drivers/dummy_uart.h>
 
 #endif
